@@ -1,0 +1,39 @@
+---
+title: "Training and Test Split"
+author: "Zheng Yuan"
+date: "2019/10/1"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(simstudy)
+library(dplyr)
+library(caret)
+library(lmtest)
+library(knitr)
+```
+
+## Fit each model with sample size n=1000 and scale the true model with $\sqrt(n)$
+```{r}
+
+n = 1000
+
+def <- defData(varname = "x1", dist="uniform",formula = "10;20")  ## x1 is from unifrom distribution
+
+def <- defData(def,varname = "x2", dist="uniform",formula = "0;3")
+
+def <- defData(def,varname = "x3", dist="uniform",formula = "0;5")
+
+def <- defData(def,varname = "x4", dist="uniform",formula = "5;10")
+
+def <- defData(def, varname = "y", formula = "3/sqrt(300)+2/sqrt(300)*x1+5/sqrt(300)*x2+3/sqrt(300)*x3+1.5/sqrt(300)*x4", variance = 1)
+
+dt <- genData(n, def) ##generate dataset n=1000
+
+dt <- dt%>%select(y,x1,x2,x3,x4) 
+
+```

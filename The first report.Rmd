@@ -1,0 +1,266 @@
+---
+title: "Cross Validation Experiment"
+author: "Zheng Yuan"
+date: "2019/1/10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(simstudy)
+library(dplyr)
+library(caret)
+```
+
+## Generate Dataset
+```{r}
+def <- defData(varname = "mu1", dist = "nonrandom", formula = 5, id = "idnum")
+def <- defData(def,varname = "mu2", dist = "nonrandom", formula = 2, id = "idnum")
+def <- defData(def,varname = "b0", dist = "nonrandom", formula = 7, id = "idnum")
+def <- defData(def,varname = "x0", dist = "nonrandom", formula = 1, id = "idnum")
+def <- defData(def,varname = "x1", formula = "mu1", variance=2)
+def <- defData(def,varname = "x2", formula = "mu2", variance=1)
+def <- defData(def, varname = "y1", formula = "b0", variance = 1)
+def <- defData(def, varname = "y2", formula = "b0+3*x1", variance = 1)
+def <- defData(def, varname = "y3", formula = "b0+3*x1+4*x2", variance = 1)
+dt <- genData(2000, def)
+dt<-dt%>%select(y1,y2,y3,x0,x1,x2)
+```
+
+##(1) The true model is y=beta0
+### 2-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number = 2
+                           )
+fit1 <- train(y1 ~ 0+x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y1 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y1 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+### 10-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number =  10
+                           )
+fit1 <- train(y1 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y1 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y1 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+
+### leave one out
+
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "LOOCV"
+                           )
+fit1 <- train(y1 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y1 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y1 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+
+
+##(2) The true model is y=beta0+beta1*x1
+### 2-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number = 2
+                           )
+fit1 <- train(y2 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y2 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y2 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+### 10-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number =  10
+                           )
+fit1 <- train(y2 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y2 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y2 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+
+### leave one out
+
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "LOOCV"
+                           )
+fit1 <- train(y2 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y2 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y2 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+
+##(3) The true model is y=beta0+beta1*x1+beta2*x2
+### 2-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number = 2
+                           )
+fit1 <- train(y3 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y3 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y3 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+### 10-fold
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "cv",
+                           number =  10
+                           )
+fit1 <- train(y3 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y3 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y3 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```
+
+### leave one out
+
+```{r,warning=FALSE}
+md<-c()
+for(i in 1:10){
+fitControl <- trainControl(
+                           method = "LOOCV"
+                           )
+fit1 <- train(y3 ~ x0, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit2 <- train(y3 ~ x1, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+fit3 <- train(y3 ~ x1+x2, data = dt, 
+                 method = "lm", 
+                 trControl = fitControl,
+                 )
+a<-c(fit1$results$RMSE,fit2$results$RMSE,fit3$results$RMSE)
+md<-c(md,which.min(a))
+}
+md
+```

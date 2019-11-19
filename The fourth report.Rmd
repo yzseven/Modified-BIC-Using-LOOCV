@@ -1,0 +1,127 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(simstudy)
+library(dplyr)
+```
+
+#### leave one cross validation prediction error using trick
+```{r}
+loocv=function(fit){
+  h=lm.influence(fit)$h
+  mean((residuals(fit)/(1-h))^2)
+}
+```
+
+#### Define Dataset
+
+```{r}
+def <- defData(varname = "x1", dist="uniform",formula = "10;20")
+## x1 is from unifrom distribution 
+def <- defData(def, varname = "y1", formula = 3, variance = 1)
+## y is from N(3,1)
+```
+
+```{r}
+md<-c()
+
+for(i in 1:1000){
+  
+dt <- genData(40, def)
+dt <- dt%>%select(y1,x1)##generate dataset n=40
+
+fit1 <- lm(y1 ~ 1, data = dt)
+fit2 <- lm(y1 ~ x1, data = dt)
+
+a<-c(loocv(fit1),loocv(fit2))
+
+md<-c(md,which.min(a))##select the one with small prediction error
+
+}
+
+table(md)/1000## empirical probability
+```
+
+```{r}
+md<-c()
+
+for(i in 1:1000){
+  
+dt <- genData(100, def)
+dt<-dt%>%select(y1,x1)
+
+fit1 <- lm(y1 ~ 1, data = dt)
+fit2 <- lm(y1 ~ x1, data = dt)
+
+a<-c(loocv(fit1),loocv(fit2))
+
+md<-c(md,which.min(a))
+
+}
+
+table(md)/1000
+```
+
+```{r}
+md<-c()
+
+for(i in 1:1000){
+  
+dt <- genData(500, def)
+dt<-dt%>%select(y1,x1)
+
+fit1 <- lm(y1 ~ 1, data = dt)
+fit2 <- lm(y1 ~ x1, data = dt)
+
+a<-c(loocv(fit1),loocv(fit2))
+
+md<-c(md,which.min(a))
+
+}
+
+table(md)/1000
+```
+
+```{r}
+md<-c()
+
+for(i in 1:1000){
+  
+dt <- genData(1000, def)
+dt<-dt%>%select(y1,x1)
+
+fit1 <- lm(y1 ~ 1, data = dt)
+fit2 <- lm(y1 ~ x1, data = dt)
+
+a<-c(loocv(fit1),loocv(fit2))
+
+md<-c(md,which.min(a))
+
+}
+
+table(md)/1000
+```
+
+
+```{r}
+md<-c()
+
+for(i in 1:1000){
+  
+dt <- genData(4000, def)
+dt<-dt%>%select(y1,x1)
+
+fit1 <- lm(y1 ~ 1, data = dt)
+fit2 <- lm(y1 ~ x1, data = dt)
+
+a<-c(loocv(fit1),loocv(fit2))
+
+md<-c(md,which.min(a))
+
+}
+
+table(md)/1000
+```
